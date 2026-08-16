@@ -292,8 +292,17 @@ const THEMES = {
       btn1:"#aace7b","btn1-ink":"#233b12","btn1-edge":"#8bb257",
       btn2:"#fcf3b9","btn2-ink":"#5a5a1c","btn2-edge":"#ddd28f",
       accent:"#7aa63f",eyebrow:"#7aa63f","title-a":"#6f9e2c","title-b":"#c9a227"}
-  },
-  /* Farben der echten Spielkomponenten, entnommen aus der offiziellen Anleitung
+  }
+};
+
+/* ---------------------------------------------------------------------------
+   Stillgelegtes Theme „Original" – optisch nicht überzeugend, bleibt aber als
+   Vorlage für ein späteres viertes Profil stehen. Zum Reaktivieren den Block
+   unten in THEMES einhängen; Chips, Speicherung und Umschaltung ergeben sich
+   automatisch daraus. Ein gespeicherter Wert "original" fällt derweil auf
+   „Standard" zurück (siehe Start unten).
+
+   Farben der echten Spielkomponenten, entnommen aus der offiziellen Anleitung
      ressources/SmartGames_Genius_Square_SGHP_001_Spielregeln.pdf, Seite 4
      (flache Vektorabbildung von Spielbrett, Blockern und den 9 Formen).
      Zuordnung Komponente -> Variable:
@@ -311,7 +320,8 @@ const THEMES = {
        violette Form          #95178f -> eyebrow
        dunkelblaue Form       #2a3e92 -> title-a  (auch das Blau der Wortmarke)
        orange Form            #f68712 -> title-b  (Logo-Schriftzug „SQUARE")
-     Holzdübel und Elfenbein-Würfel bleiben unverändert – die echten Blocker sind Holz. */
+     Holzdübel und Elfenbein-Würfel bleiben unverändert – die echten Blocker sind Holz.
+
   original:{
     label:"Original", dots:["#1e2c54","#de183d","#42b23c","#f68712"],
     vars:{bg:"#fdf7ea",board:"#1e2c54","board-edge":"#111a33",label:"#ffffff",
@@ -319,7 +329,8 @@ const THEMES = {
       btn2:"#f68712","btn2-ink":"#4a2408","btn2-edge":"#cf6d09",
       accent:"#de183d",eyebrow:"#95178f","title-a":"#2a3e92","title-b":"#f68712"}
   }
-};
+--------------------------------------------------------------------------- */
+
 const DEFAULT_THEME = "standard";
 
 function applyTheme(key){
@@ -529,6 +540,8 @@ document.getElementById("btnWipe").addEventListener("click", ()=>{
 let savedTheme = DEFAULT_THEME;
 try{ savedTheme = localStorage.getItem(THEME_KEY) || DEFAULT_THEME; }catch(e){}
 if(savedTheme === "aktuell") savedTheme = "standard";     // Abwärtskompatibilität
+/* Unbekannte Schlüssel (z. B. das stillgelegte "original") fallen auf Standard zurück
+   und werden dabei gleich überschrieben. */
 applyTheme(THEMES[savedTheme] ? savedTheme : DEFAULT_THEME);
 loadData(); renderStats(); rollAll();
 

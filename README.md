@@ -20,9 +20,9 @@ Drei Seiten, per Pillen-Menü **und** horizontalem Wischen erreichbar:
 - **Timer** (MM:SS.d), startet beim Würfeln, stoppt bei „Fertig"
 - **Statistik**: Bestzeit, Durchschnitt, Gespielt (gesamt) und Heute; darunter die
   letzten 10 Spiele mit Zeit + Kombination, **Bestzeit** hervorgehoben
-- **4 Farbprofile**: Standard, Koralle, Mint und **Original** – letzteres mit den
-  Farben der echten Spielkomponenten aus der offiziellen Anleitung
-  (`ressources/…Spielregeln.pdf`, Herleitung als Kommentar in `index.html`)
+- **3 Farbprofile**: Standard, Koralle und Mint (ein viertes Profil „Original" mit
+  den Farben der echten Spielkomponenten liegt auskommentiert in `index.html`
+  bereit – samt Herleitung aus der offiziellen Anleitung)
 - **Bildschirm immer an** über die Screen-Wake-Lock-API (braucht HTTPS; Browser
   ohne Unterstützung zeigen den Schalter deaktiviert)
 - **Dauerhaftes Speichern** im Browser (übersteht Neustart) – über `localStorage`
@@ -53,7 +53,7 @@ icon-512.png            Quelldatei für die App-Icons
 make_icons.py           erzeugt die Icons neu (optional, braucht Python + Pillow)
 DESIGNPRINZIPIEN.md     Designleitlinien der App
 mockup/                 Layout- und Palettenentwürfe (nicht Teil der App)
-ressources/             offizielle Spielanleitung als PDF (Farbquelle „Original")
+ressources/             offizielle Spielanleitung als PDF (Farbquelle für Themen)
 ```
 
 ## Lokal testen

@@ -56,7 +56,7 @@ Materialität und direkte Bedienbarkeit.
 
 ## 4. Farbthemen ändern Farbe, nicht Form
 
-Die Themen „Aktuell“, „Koralle“ und „Mint“ steuern nur:
+Die Themen „Standard“, „Koralle“ und „Mint“ steuern nur:
 
 - Seitenhintergrund
 - Brettfarbe, Brettkante und Brettbeschriftung
