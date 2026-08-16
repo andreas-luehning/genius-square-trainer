@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Genius Square – Paletten-Ideen aus dem Buch</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0;background:#eef1f4;color:#26303a;
+    font-family:"Segoe UI Rounded","SF Pro Rounded",ui-rounded,system-ui,-apple-system,Roboto,sans-serif;
+    padding:20px 14px 40px;
+  }
+  .wrap{max-width:960px;margin:0 auto;}
+  .head{text-align:center;margin-bottom:6px;}
+  .head h1{margin:0;font-size:1.5rem;font-weight:800;}
+  .head p{margin:6px auto 0;max-width:560px;color:#5c6773;font-size:.9rem;line-height:1.4;}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:20px;}
+  @media(min-width:640px){.grid{grid-template-columns:1fr 1fr;}}
+
+  .card{
+    background:#fff;border-radius:18px;overflow:hidden;
+    box-shadow:0 6px 18px rgba(60,80,100,.12);
+  }
+  .card.current{outline:3px solid #ffce4a;outline-offset:-3px;}
+  .card-title{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 8px;}
+  .card-title b{font-size:1rem;}
+  .tag{font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+    color:#8a6d00;background:#ffe9a6;padding:3px 8px;border-radius:999px;}
+
+  /* Mini-App im Palettenlook */
+  .preview{background:var(--bg);padding:14px;}
+  .dice-row{display:flex;gap:7px;justify-content:center;margin-bottom:10px;}
+  .die{
+    width:44px;height:44px;border-radius:11px;
+    background:linear-gradient(160deg,#fdf6df,#f1e5c2);color:#33291b;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;
+    box-shadow:0 3px 0 #e3d3a6, inset 0 2px 2px rgba(255,255,255,.8);
+  }
+  .board{
+    background:var(--board);border-radius:14px;padding:9px;
+    display:grid;grid-template-columns:repeat(6,1fr);gap:5px;
+    box-shadow:0 5px 0 var(--board-edge), inset 0 2px 2px rgba(255,255,255,.25);
+  }
+  .cell{
+    aspect-ratio:1/1;border-radius:50%;
+    background:rgba(0,0,0,.16);
+    box-shadow:inset 0 3px 4px rgba(0,0,0,.35);
+    position:relative;
+  }
+  .cell.b::after{
+    content:"";position:absolute;inset:9%;border-radius:50%;
+    background:
+      radial-gradient(circle at 38% 32%, rgba(255,255,255,.6), rgba(255,255,255,0) 46%),
+      repeating-radial-gradient(circle at 45% 43%, #e0b57e 0 2px, #d0a469 2px 4px),
+      radial-gradient(circle at 50% 50%, #ecc78d, #d8a75c 58%, #b6823f);
+    box-shadow:0 2px 3px rgba(90,55,15,.5), inset 0 1px 1px rgba(255,246,224,.6), inset 0 -3px 4px rgba(120,80,35,.5);
+  }
+  .row{display:flex;gap:8px;align-items:center;margin-top:11px;}
+  .btn{
+    flex:1;border:none;border-radius:11px;padding:11px 8px;font-weight:800;font-size:.82rem;
+    font-family:inherit;
+  }
+  .btn1{background:var(--btn1);color:var(--btn1-ink);box-shadow:0 4px 0 var(--btn1-edge);}
+  .btn2{background:var(--btn2);color:var(--btn2-ink);box-shadow:0 4px 0 var(--btn2-edge);}
+  .timer{
+    text-align:center;margin-top:11px;font-weight:800;font-size:1.5rem;letter-spacing:1px;
+    color:var(--accent);
+  }
+  .timer small{display:block;font-size:.6rem;letter-spacing:.3em;color:#9aa4ad;font-weight:800;}
+
+  /* Farbfelder mit RGB */
+  .swatches{display:flex;flex-wrap:wrap;gap:8px;padding:11px 14px 14px;}
+  .sw{display:flex;align-items:center;gap:6px;font-size:.68rem;color:#5c6773;}
+  .dot{width:15px;height:15px;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>Paletten-Ideen aus dem Buch</h1>
+    <p>Dieselbe Mini-App in verschiedenen Farbkombinationen. Die Holzdübel und die
+       Elfenbein-Würfel bleiben überall gleich – nur Brett, Buttons, Hintergrund und
+       Akzent kommen aus je einer Buch-Palette. Ganz oben zum Vergleich die aktuelle App.</p>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+// bg, board, board-edge, btn1(+ink,edge), btn2(+ink,edge), accent
+const PALETTES = [
+  {
+    name:"Aktuell (Mischung)", current:true,
+    vars:{bg:"#fbf4e4",board:"#69c3ef","board-edge":"#3f94c6",
+      btn1:"#8bbe3d","btn1-ink":"#fff","btn1-edge":"#6f9e2c",
+      btn2:"#f5a04e","btn2-ink":"#5a3410","btn2-edge":"#dd8127",accent:"#eb5b44"},
+    colors:[["#69c3ef","100/199/243"],["#8bbe3d","177/204/52"],["#f5a04e","245/160/78"],["#eb5b44","235/91/68"]]
+  },
+  {
+    name:"Blau · Mint · Koralle · Pink",
+    vars:{bg:"#e7f3ec",board:"#9abae3","board-edge":"#7699c4",
+      btn1:"#ec644e","btn1-ink":"#fff","btn1-edge":"#c94a37",
+      btn2:"#cf388d","btn2-ink":"#fff","btn2-edge":"#a92771",accent:"#ec644e"},
+    colors:[["#9abae3","154/186/227"],["#e7f3ea","231/243/234"],["#ec644e","236/100/78"],["#cf388d","207/56/141"]]
+  },
+  {
+    name:"Orange · Mint · Pink · Lila",
+    vars:{bg:"#e5f2ee",board:"#432d7f","board-edge":"#301f5e",
+      btn1:"#f5a04e","btn1-ink":"#4a2c07","btn1-edge":"#dd8127",
+      btn2:"#d65a9c","btn2-ink":"#fff","btn2-edge":"#b23f7d",accent:"#d65a9c"},
+    colors:[["#f5a04e","245/160/78"],["#cce7e3","204/231/227"],["#d65a9c","214/90/156"],["#432d7f","67/45/127"]]
+  },
+  {
+    name:"Himmel · Türkis · Navy · Mint",
+    vars:{bg:"#eaf6ff",board:"#354093","board-edge":"#262f70",
+      btn1:"#77c8d0","btn1-ink":"#123a3e","btn1-edge":"#54a7af",
+      btn2:"#c2e6f9","btn2-ink":"#1c3a4d","btn2-edge":"#9cc9e0",accent:"#354093"},
+    colors:[["#c2e6f9","194/230/249"],["#77c8d0","119/200/208"],["#354093","53/64/147"],["#e7f3ea","231/243/234"]]
+  },
+  {
+    name:"Mint · Grün · Zartgelb",
+    vars:{bg:"#fcf7dc",board:"#cce7e3","board-edge":"#a7c9c4",
+      btn1:"#aace7b","btn1-ink":"#233b12","btn1-edge":"#8bb257",
+      btn2:"#fcf3b9","btn2-ink":"#5a5a1c","btn2-edge":"#ddd28f",accent:"#7aa63f"},
+    colors:[["#cce7e3","204/231/227"],["#aace7b","170/206/123"],["#fcf3b9","252/243/185"]]
+  },
+  {
+    name:"Pfirsich · Blau · Türkis",
+    vars:{bg:"#fdefe2",board:"#396aa8","board-edge":"#2b5288",
+      btn1:"#77c8d0","btn1-ink":"#123a3e","btn1-edge":"#54a7af",
+      btn2:"#fcdbc3","btn2-ink":"#7a4a28","btn2-edge":"#e4b89b",accent:"#396aa8"},
+    colors:[["#fcdbc3","252/219/195"],["#396aa8","57/106/177"],["#77c8d0","119/200/208"]]
+  },
+  {
+    name:"Navy · Rosa · Türkis",
+    vars:{bg:"#eef7f7",board:"#354093","board-edge":"#262f70",
+      btn1:"#77c8d0","btn1-ink":"#123a3e","btn1-edge":"#54a7af",
+      btn2:"#fad2db","btn2-ink":"#8a3350","btn2-edge":"#e3b0bd",accent:"#e07098"},
+    colors:[["#354093","53/64/147"],["#fad2db","250/210/219"],["#77c8d0","119/200/208"]]
+  },
+  {
+    name:"Koralle · Rosa · Creme",
+    vars:{bg:"#fff5f6",board:"#eb5b44","board-edge":"#c8442f",
+      btn1:"#f5a04e","btn1-ink":"#5a3410","btn1-edge":"#dd8127",
+      btn2:"#fad2db","btn2-ink":"#8a3350","btn2-edge":"#e3b0bd",accent:"#eb5b44"},
+    colors:[["#eb5b44","235/91/68"],["#fad2db","250/210/219"],["#f5a04e","245/160/78"]]
+  }
+];
+
+// feste Dübel-Positionen fürs Mock-up (Spalte,Zeile 0-basiert)
+const BLOCKED = new Set(["0-0","4-0","5-1","1-2","3-2","2-4","5-3","3-5"]);
+const SAMPLE_DICE = ["C1","E2","D4"];
+
+const grid = document.getElementById("grid");
+
+PALETTES.forEach(p=>{
+  const card = document.createElement("div");
+  card.className = "card" + (p.current ? " current":"");
+  const styleVars = Object.entries(p.vars).map(([k,v])=>`--${k}:${v}`).join(";");
+
+  // Brett-Zellen
+  let cells = "";
+  for(let r=0;r<6;r++) for(let c=0;c<6;c++){
+    cells += `<div class="cell${BLOCKED.has(c+"-"+r)?" b":""}"></div>`;
+  }
+  // Würfel
+  const dice = SAMPLE_DICE.map(v=>`<div class="die">${v}</div>`).join("");
+  // Farbfelder
+  const sw = p.colors.map(([hex,rgb])=>
+    `<div class="sw"><span class="dot" style="background:${hex}"></span>${rgb}</div>`).join("");
+
+  card.innerHTML = `
+    <div class="card-title"><b>${p.name}</b>${p.current?'<span class="tag">In der App</span>':''}</div>
+    <div class="preview" style="${styleVars}">
+      <div class="dice-row">${dice}</div>
+      <div class="board">${cells}</div>
+      <div class="row">
+        <button class="btn btn1">Neue Kombination</button>
+        <button class="btn btn2">Fertig</button>
+      </div>
+      <div class="timer mono"><small>ZEIT</small>00:12.4</div>
+    </div>
+    <div class="swatches">${sw}</div>`;
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>

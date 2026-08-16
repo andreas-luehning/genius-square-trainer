@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fbf4e4" id="metaTheme">
+<title>Genius Square Trainer</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="GS Trainer">
+<style>
+  :root{
+    /* Struktur */
+    --card:#ffffff;
+    --ink:#33291b;
+    --muted:#93866f;
+    --hair:rgba(51,41,27,.10);
+    --radius:20px;
+    /* Themenfarben (Standard = Aktuell; werden per JS gesetzt) */
+    --bg:#fbf4e4;
+    --board:#69c3ef; --board-edge:#3f94c6; --label:#f0fbff;
+    --btn1:#8bbe3d; --btn1-ink:#ffffff; --btn1-edge:#6f9e2c;
+    --btn2:#f5a04e; --btn2-ink:#5a3410; --btn2-edge:#dd8127;
+    --accent:#eb5b44; --eyebrow:#f5a04e; --title-a:#eb5b44; --title-b:#4fa6d6;
+    /* Elfenbein-Würfel + Holzdübel (immer gleich) */
+    --ivory-1:#fdf6df; --ivory-2:#f1e5c2;
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;}
+  body{
+    background:radial-gradient(130% 60% at 50% -8%, rgba(255,255,255,.35) 0%, var(--bg) 60%), var(--bg);
+    color:var(--ink);
+    font-family:"Segoe UI Rounded","SF Pro Rounded",ui-rounded,system-ui,-apple-system,Roboto,sans-serif;
+    display:flex;justify-content:center;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    transition:background .25s;
+  }
+  .app{width:100%;max-width:520px;padding:16px 16px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;}
+  .mono{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Roboto Mono",monospace;}
+
+  /* Kopf */
+  header{text-align:center;margin:2px 0 0;}
+  .eyebrow{font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--eyebrow);font-weight:800;margin:0 0 3px;}
+  h1{margin:0;font-size:1.85rem;font-weight:800;letter-spacing:.3px;}
+  h1 .a{color:var(--title-a);} h1 .b{color:var(--title-b);}
+
+  /* Themen-Umschalter */
+  .themes{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+  .chip{
+    display:flex;align-items:center;gap:8px;padding:7px 12px 7px 9px;border-radius:999px;
+    border:2px solid var(--hair);background:var(--card);color:var(--ink);
+    font-weight:800;font-size:.78rem;cursor:pointer;font-family:inherit;
+    transition:border-color .15s, transform .06s;
+  }
+  .chip:active{transform:translateY(1px);}
+  .chip.active{border-color:var(--accent);color:var(--accent);}
+  .chip .dots{display:flex;}
+  .chip .dots i{width:11px;height:11px;border-radius:50%;margin-left:-3px;box-shadow:0 0 0 1.5px var(--card);}
+  .chip .dots i:first-child{margin-left:0;}
+
+  /* Würfel */
+  .dice{display:flex;flex-direction:column;gap:9px;}
+  .dice-row{display:flex;gap:9px;justify-content:center;}
+  .die{
+    width:calc((100% - 3 * 9px) / 4);aspect-ratio:1/1;border-radius:16px;
+    background:linear-gradient(160deg,var(--ivory-1),var(--ivory-2));color:var(--ink);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:clamp(19px,6.6vw,28px);letter-spacing:.5px;
+    box-shadow:0 5px 0 #e3d3a6,0 8px 12px rgba(120,95,40,.22),inset 0 2px 2px rgba(255,255,255,.8);user-select:none;
+  }
+  .die.rolling{animation:pop .24s cubic-bezier(.3,1.5,.5,1);}
+  @keyframes pop{0%{transform:scale(.84) rotate(-3deg);opacity:.5}100%{transform:scale(1) rotate(0);opacity:1}}
+
+  /* Brett */
+  .board-wrap{
+    border-radius:calc(var(--radius) + 6px);padding:14px;background:var(--board);
+    box-shadow:0 8px 0 var(--board-edge),0 14px 22px rgba(40,80,110,.28),inset 0 2px 2px rgba(255,255,255,.4);
+    transition:background .25s, box-shadow .25s;
+  }
+  .board-label{display:flex;justify-content:space-between;margin:0 4px 12px;}
+  .board-label span{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--label);font-weight:800;}
+  .board{display:grid;grid-template-columns:16px repeat(6,1fr);grid-template-rows:16px repeat(6,1fr);gap:clamp(5px,1.7vw,9px);}
+  .lbl{display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:var(--label);}
+  .cell{
+    aspect-ratio:1/1;border-radius:50%;background:rgba(0,0,0,.17);
+    box-shadow:inset 0 4px 6px rgba(0,0,0,.32),inset 0 -1px 0 rgba(255,255,255,.18);position:relative;
+  }
+  .cell.blocked::after{
+    content:"";position:absolute;inset:7%;border-radius:50%;
+    background:
+      radial-gradient(circle at 38% 32%, rgba(255,255,255,.6), rgba(255,255,255,0) 46%),
+      linear-gradient(118deg, rgba(150,98,48,0) 42%, rgba(150,98,48,.18) 50%, rgba(150,98,48,0) 58%),
+      repeating-radial-gradient(circle at 45% 43%, #e0b57e 0 2.5px, #d0a469 2.5px 5px),
+      radial-gradient(circle at 50% 50%, #ecc78d 0%, #d8a75c 58%, #b6823f 100%);
+    box-shadow:0 3px 5px rgba(90,55,15,.5),inset 0 2px 1px rgba(255,246,224,.6),inset 0 -4px 6px rgba(120,80,35,.55);
+    animation:drop .28s cubic-bezier(.25,1.6,.5,1);
+  }
+  @keyframes drop{0%{transform:translateY(-24%) scale(.78);opacity:0}55%{opacity:1}100%{transform:translateY(0) scale(1);opacity:1}}
+
+  /* Steuerung */
+  .controls{background:var(--card);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:14px;box-shadow:0 6px 16px rgba(120,100,60,.14);}
+  .btn-row{display:flex;gap:11px;}
+  button.act{flex:1;border:none;border-radius:15px;padding:16px 10px;font-size:1.05rem;font-weight:800;letter-spacing:.3px;cursor:pointer;font-family:inherit;transition:transform .06s, box-shadow .06s, opacity .12s;}
+  button.act:active{transform:translateY(3px);}
+  button.act:disabled{opacity:.4;cursor:default;}
+  .btn-new{color:var(--btn1-ink);background:var(--btn1);box-shadow:0 5px 0 var(--btn1-edge);}
+  .btn-new:active{box-shadow:0 2px 0 var(--btn1-edge);}
+  .btn-done{color:var(--btn2-ink);background:var(--btn2);box-shadow:0 5px 0 var(--btn2-edge);}
+  .btn-done:active{box-shadow:0 2px 0 var(--btn2-edge);}
+
+  .timer{text-align:center;font-size:clamp(34px,12vw,50px);font-weight:800;letter-spacing:2px;color:var(--ink);}
+  .timer small{display:block;font-size:.72rem;font-weight:800;letter-spacing:.32em;color:var(--muted);margin-bottom:2px;}
+  .timer.running{color:var(--accent);}
+
+  /* Historie */
+  .history{background:var(--card);border-radius:var(--radius);padding:14px 14px 10px;box-shadow:0 6px 16px rgba(120,100,60,.14);}
+  .history-head{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 12px;}
+  .history-head h2{margin:0;font-size:1.05rem;font-weight:800;}
+  .best{font-size:.82rem;color:var(--muted);} .best b{color:var(--accent);}
+  table{width:100%;border-collapse:collapse;}
+  th,td{padding:8px 4px;text-align:left;font-size:.86rem;}
+  th{color:var(--muted);font-weight:800;border-bottom:2px solid var(--hair);}
+  td:first-child,th:first-child{width:34px;color:var(--muted);white-space:nowrap;}
+  td:nth-child(2),th:nth-child(2){width:80px;}
+  tr td{border-bottom:1px solid rgba(51,41,27,.06);}
+  tr.is-best td{color:var(--accent);font-weight:700;}
+  tr.is-best td:first-child::before{content:"★";font-size:.62em;margin-right:2px;vertical-align:1px;}
+  .combo{color:#6f6455;word-spacing:2px;} .empty{color:#c9bda6;}
+  .clear{background:none;border:2px solid var(--hair);color:var(--muted);font-size:.78rem;font-weight:800;padding:7px 14px;border-radius:12px;flex:0 0 auto;width:auto;margin:8px auto 2px;display:block;font-family:inherit;}
+  .clear:active{background:rgba(51,41,27,.04);transform:translateY(1px);}
+
+  @media (prefers-reduced-motion:reduce){.die.rolling,.cell.blocked::after{animation:none;}button.act:active{transform:none;}body,.board-wrap{transition:none;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <p class="eyebrow">Trainer</p>
+    <h1><span class="a">Genius</span> <span class="b">Square</span></h1>
+  </header>
+
+  <div class="themes" id="themes"></div>
+
+  <div class="dice">
+    <div class="dice-row" id="diceTop"></div>
+    <div class="dice-row" id="diceBottom"></div>
+  </div>
+
+  <div class="board-wrap">
+    <div class="board-label"><span>Brett</span><span>Blocker</span></div>
+    <div class="board" id="board"></div>
+  </div>
+
+  <div class="controls">
+    <div class="btn-row">
+      <button class="act btn-new" id="btnNew">Neue Kombination</button>
+      <button class="act btn-done" id="btnDone" disabled>Fertig</button>
+    </div>
+    <div class="timer mono" id="timer"><small>ZEIT</small>00:00.0</div>
+  </div>
+
+  <div class="history">
+    <div class="history-head">
+      <h2>Letzte 10 Spiele</h2>
+      <div class="best" id="best">Best: <b>—</b></div>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Zeit</th><th>Würfelkombination</th></tr></thead>
+      <tbody id="historyBody"></tbody>
+    </table>
+    <button class="clear" id="btnClear">Historie löschen</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+const DICE_SETS = [
+  ["A1","C1","D1","D2","E2","F3"],
+  ["A2","B2","C2","A3","B1","B3"],
+  ["C3","D3","E3","B4","C4","D4"],
+  ["E1","F2","F2","B6","A5","A5"],
+  ["A4","B5","C6","C5","D6","F6"],
+  ["E4","F4","E5","F5","D5","E6"],
+  ["F1","F1","F1","A6","A6","A6"],
+];
+const COLS = ["A","B","C","D","E","F"];
+const ROWS = [1,2,3,4,5,6];
+const STORAGE_KEY = "gs-trainer-history-v1";
+const THEME_KEY = "gs-trainer-theme";
+
+/* ---- Themen (aus dem Buch) ---- */
+const THEMES = {
+  aktuell:{
+    label:"Aktuell", dots:["#69c3ef","#8bbe3d","#f5a04e","#eb5b44"],
+    vars:{bg:"#fbf4e4",board:"#69c3ef","board-edge":"#3f94c6",label:"#f0fbff",
+      btn1:"#8bbe3d","btn1-ink":"#ffffff","btn1-edge":"#6f9e2c",
+      btn2:"#f5a04e","btn2-ink":"#5a3410","btn2-edge":"#dd8127",
+      accent:"#eb5b44",eyebrow:"#f5a04e","title-a":"#eb5b44","title-b":"#4fa6d6"}
+  },
+  koralle:{
+    label:"Koralle", dots:["#9abae3","#e7f3ea","#ec644e","#cf388d"],
+    vars:{bg:"#e7f3ec",board:"#9abae3","board-edge":"#7699c4",label:"#33465e",
+      btn1:"#ec644e","btn1-ink":"#ffffff","btn1-edge":"#c94a37",
+      btn2:"#cf388d","btn2-ink":"#ffffff","btn2-edge":"#a92771",
+      accent:"#ec644e",eyebrow:"#cf388d","title-a":"#ec644e","title-b":"#5f83b8"}
+  },
+  mint:{
+    label:"Mint", dots:["#cce7e3","#aace7b","#fcf3b9"],
+    vars:{bg:"#fcf7dc",board:"#cce7e3","board-edge":"#a7c9c4",label:"#3f5b54",
+      btn1:"#aace7b","btn1-ink":"#233b12","btn1-edge":"#8bb257",
+      btn2:"#fcf3b9","btn2-ink":"#5a5a1c","btn2-edge":"#ddd28f",
+      accent:"#7aa63f",eyebrow:"#7aa63f","title-a":"#6f9e2c","title-b":"#c9a227"}
+  }
+};
+
+function applyTheme(key){
+  const t = THEMES[key] || THEMES.aktuell;
+  const root = document.documentElement.style;
+  for(const [k,v] of Object.entries(t.vars)) root.setProperty("--"+k, v);
+  document.getElementById("metaTheme").setAttribute("content", t.vars.bg);
+  document.querySelectorAll(".chip").forEach(c=>c.classList.toggle("active", c.dataset.key===key));
+  try{ localStorage.setItem(THEME_KEY, key); }catch(e){}
+}
+
+/* Chips bauen */
+const themesEl = document.getElementById("themes");
+Object.entries(THEMES).forEach(([key,t])=>{
+  const chip = document.createElement("button");
+  chip.className = "chip"; chip.dataset.key = key;
+  chip.innerHTML = '<span class="dots">'+t.dots.map(c=>`<i style="background:${c}"></i>`).join("")+'</span>'+t.label;
+  chip.addEventListener("click", ()=>applyTheme(key));
+  themesEl.appendChild(chip);
+});
+
+/* ---- Persistenz Historie ---- */
+let history = [];
+function loadHistory(){ try{ const r=localStorage.getItem(STORAGE_KEY); if(r) history=JSON.parse(r);}catch(e){} }
+function saveHistory(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); }catch(e){} }
+if(navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(()=>{}); }
+
+function formatTime(s){ if(s<0)s=0; const m=Math.floor(s/60),se=Math.floor(s%60),t=Math.floor((s*10)%10);
+  return String(m).padStart(2,"0")+":"+String(se).padStart(2,"0")+"."+t; }
+
+const diceTop=document.getElementById("diceTop"), diceBottom=document.getElementById("diceBottom");
+const boardEl=document.getElementById("board"), timerEl=document.getElementById("timer");
+const btnNew=document.getElementById("btnNew"), btnDone=document.getElementById("btnDone");
+const btnClear=document.getElementById("btnClear"), historyBody=document.getElementById("historyBody"), bestEl=document.getElementById("best");
+
+const dieEls = DICE_SETS.map((_,i)=>{ const d=document.createElement("div"); d.className="die"; d.textContent="—"; (i<3?diceTop:diceBottom).appendChild(d); return d; });
+
+const cells={};
+function cell(cls,text){ const el=document.createElement("div"); el.className=cls; if(text)el.textContent=text; return el; }
+(function(){ boardEl.appendChild(cell("lbl")); COLS.forEach(c=>boardEl.appendChild(cell("lbl",c)));
+  ROWS.forEach(r=>{ boardEl.appendChild(cell("lbl",String(r))); COLS.forEach(c=>{ const el=cell("cell"); cells[c+r]=el; boardEl.appendChild(el); }); }); })();
+
+let running=false,startTime=0,rafId=null,currentValues=[];
+function rollAll(){ currentValues=DICE_SETS.map((faces,i)=>{ const v=faces[Math.floor(Math.random()*faces.length)];
+  dieEls[i].textContent=v; dieEls[i].classList.remove("rolling"); void dieEls[i].offsetWidth; dieEls[i].classList.add("rolling"); return v; }); updateBoard(); }
+function updateBoard(){ Object.values(cells).forEach(c=>c.classList.remove("blocked")); currentValues.forEach(v=>{ if(cells[v])cells[v].classList.add("blocked"); }); }
+function currentCombo(){ return currentValues.join(" "); }
+
+function tick(){ if(!running)return; const e=(performance.now()-startTime)/1000; timerEl.innerHTML='<small>ZEIT</small>'+formatTime(e); rafId=requestAnimationFrame(tick); }
+function startTimer(){ running=true; startTime=performance.now(); timerEl.classList.add("running"); timerEl.innerHTML='<small>ZEIT</small>00:00.0'; cancelAnimationFrame(rafId); rafId=requestAnimationFrame(tick); }
+function stopTimer(){ if(!running)return 0; running=false; cancelAnimationFrame(rafId); timerEl.classList.remove("running"); const e=(performance.now()-startTime)/1000; timerEl.innerHTML='<small>ZEIT</small>'+formatTime(e); return e; }
+
+function newGame(){ rollAll(); startTimer(); btnDone.disabled=false; btnNew.textContent="Neu würfeln"; }
+function finishGame(){ const e=stopTimer(); if(e<=0)return; history.unshift({t:e,combo:currentCombo()}); history=history.slice(0,10); saveHistory(); renderHistory(); btnDone.disabled=true; btnNew.textContent="Neue Kombination"; }
+function bestTime(){ return history.length?Math.min(...history.map(h=>h.t)):null; }
+function renderHistory(){ const best=bestTime(); bestEl.innerHTML="Best: <b>"+(best===null?"—":formatTime(best))+"</b>"; historyBody.innerHTML="";
+  for(let i=0;i<10;i++){ const tr=document.createElement("tr"); const h=history[i]; if(h&&best!==null&&h.t===best)tr.className="is-best";
+    const num="<td>"+(i+1)+"</td>"; tr.innerHTML=h?num+'<td class="mono">'+formatTime(h.t)+'</td><td class="combo mono">'+h.combo+'</td>':num+'<td class="empty">—</td><td class="empty">—</td>'; historyBody.appendChild(tr); } }
+
+btnNew.addEventListener("click", newGame);
+btnDone.addEventListener("click", finishGame);
+btnClear.addEventListener("click", ()=>{ history=[]; saveHistory(); renderHistory(); });
+
+/* Start */
+let savedTheme="aktuell"; try{ savedTheme=localStorage.getItem(THEME_KEY)||"aktuell"; }catch(e){}
+applyTheme(THEMES[savedTheme]?savedTheme:"aktuell");
+loadHistory(); renderHistory(); rollAll();
+
+if("serviceWorker" in navigator){ window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
+</script>
+</body>
+</html>
