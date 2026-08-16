@@ -28,6 +28,10 @@
     --accent:#eb5b44; --eyebrow:#f5a04e; --title-a:#eb5b44; --title-b:#4fa6d6;
     /* Elfenbein-Würfel + Holzdübel (immer gleich) */
     --ivory-1:#fdf6df; --ivory-2:#f1e5c2;
+    /* Tatsächlich bespielbare Höhe. `100dvh` allein genügt nicht: Statusleiste
+       und Home-Indikator gehen über die Safe-Area-Ränder noch ab – auf einem
+       Gerät mit 808px Viewport bleiben so nur rund 715px übrig. */
+    --usable-h:calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
   }
 
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -63,16 +67,27 @@
   .pages{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
     scrollbar-width:none;}
   .pages::-webkit-scrollbar{display:none;}
-  .page{min-width:100%;scroll-snap-align:start;overflow-y:auto;
+  /* `flex:0 0 100%` statt `min-width:100%`: Die Seitenbreite darf nicht vom
+     Inhalt abhängen, sonst schiebt das quadratische Brett über seine
+     Mindestbreite die Wisch-Seiten auseinander. */
+  .page{flex:0 0 100%;min-width:0;scroll-snap-align:start;overflow-y:auto;
     padding:6px 16px calc(24px + env(safe-area-inset-bottom));
     display:flex;flex-direction:column;gap:14px;}
 
   /* ---------- SEITE 1: SPIEL ---------- */
+  /* Die Spielseite scrollt nicht: Würfel, Brett, Aktionen und Zeit sollen
+     gleichzeitig sichtbar sein (Designprinzip 6). Knapp wird die Höhe, nicht
+     die Breite – deshalb ist hier alles feste Größe außer dem Brett. */
+  .page.game{min-height:0;}
+  .dice,.controls{flex:0 0 auto;}
+
   /* Würfel */
   .dice{display:flex;flex-direction:column;gap:9px;}
   .dice-row{display:flex;gap:9px;justify-content:center;}
+  /* Drei Grenzen: die Breite (wie bisher), eine feste Obergrenze – zwei Zeichen
+     brauchen keine 90px – und ein Anteil der bespielbaren Höhe. */
   .die{
-    width:calc((100% - 3 * 9px) / 4);aspect-ratio:1/1;border-radius:16px;
+    width:min(calc((100% - 3 * 9px) / 4), 74px, calc(var(--usable-h) * .086));aspect-ratio:1/1;border-radius:16px;
     background:linear-gradient(160deg,var(--ivory-1),var(--ivory-2));color:var(--ink);
     display:flex;align-items:center;justify-content:center;font-weight:800;font-size:clamp(19px,6.6vw,28px);letter-spacing:.5px;
     box-shadow:0 5px 0 #e3d3a6,0 8px 12px rgba(120,95,40,.22),inset 0 2px 2px rgba(255,255,255,.8);user-select:none;
@@ -80,16 +95,31 @@
   .die.rolling{animation:pop .24s cubic-bezier(.3,1.5,.5,1);}
   @keyframes pop{0%{transform:scale(.84) rotate(-3deg);opacity:.5}100%{transform:scale(1) rotate(0);opacity:1}}
 
-  /* Brett */
+  /* Brett
+     Das Brett ist der Puffer der Spielseite: Würfel und Steuerung behalten ihre
+     Größe, das Brett bekommt den Rest der Höhe und bleibt dabei quadratisch.
+     Es begrenzt sich deshalb nach *beiden* Seiten – Breite über `max-width`,
+     Höhe über `height:100%` des flexiblen Bereichs. */
+  /* `min-height` verhindert, dass das Brett bei absurd wenig Höhe (Querformat)
+     unter seine Mindestbreite gedrückt und dabei unquadratisch wird. Darunter
+     scrollt die Seite lieber – siehe `overflow-y:auto` an `.page`. */
+  .board-area{flex:1 1 auto;min-height:172px;display:flex;padding-bottom:8px;}
   .board-wrap{
+    /* Die Höhe ist die maßgebliche Größe – daraus folgt die Breite über die
+       `aspect-ratio`. Sie wird deshalb gegen *beide* Grenzen gerechnet: den
+       freien Platz (`100%`) und die höchstens verfügbare Breite. Ein bloßes
+       `max-width` würde nur die Breite kappen und das Brett rechteckig machen. */
+    aspect-ratio:1/1;height:min(100%, calc(min(100vw, 520px) - 32px));max-width:100%;margin:auto;
     border-radius:calc(var(--radius) + 6px);padding:14px;background:var(--board);
     box-shadow:0 8px 0 var(--board-edge),0 14px 22px rgba(40,80,110,.28),inset 0 2px 2px rgba(255,255,255,.4);
     transition:background .25s, box-shadow .25s;
   }
-  .board{display:grid;grid-template-columns:16px repeat(6,1fr);grid-template-rows:16px repeat(6,1fr);gap:clamp(5px,1.7vw,9px);}
+  .board{width:100%;height:100%;display:grid;grid-template-columns:16px repeat(6,1fr);grid-template-rows:16px repeat(6,1fr);gap:clamp(5px,1.7vw,9px);}
   .lbl{display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:var(--label);}
+  /* Keine eigene `aspect-ratio` mehr: Die Zellen sind quadratisch, weil das
+     Brett quadratisch ist und Zeilen wie Spalten `1fr` teilen. */
   .cell{
-    aspect-ratio:1/1;border-radius:50%;background:rgba(0,0,0,.17);
+    border-radius:50%;background:rgba(0,0,0,.17);
     box-shadow:inset 0 4px 6px rgba(0,0,0,.32),inset 0 -1px 0 rgba(255,255,255,.18);position:relative;
   }
   .cell.blocked::after{
@@ -105,9 +135,11 @@
   @keyframes drop{0%{transform:translateY(-24%) scale(.78);opacity:0}55%{opacity:1}100%{transform:translateY(0) scale(1);opacity:1}}
 
   /* Steuerung */
-  .controls{background:var(--card);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:14px;box-shadow:0 6px 16px rgba(120,100,60,.14);}
+  /* Auch die Steuerung skaliert mit der Höhe, sonst bliebe das Brett der einzige
+     nachgebende Block und würde zum kleinsten Element der Seite. */
+  .controls{background:var(--card);border-radius:var(--radius);padding:clamp(11px,calc(var(--usable-h) * .0165),14px);display:flex;flex-direction:column;gap:clamp(9px,calc(var(--usable-h) * .0165),14px);box-shadow:0 6px 16px rgba(120,100,60,.14);}
   .btn-row{display:flex;gap:11px;}
-  button.act{flex:1;border:none;border-radius:15px;padding:16px 10px;font-size:1.05rem;font-weight:800;letter-spacing:.3px;cursor:pointer;font-family:inherit;transition:transform .06s, box-shadow .06s, opacity .12s;}
+  button.act{flex:1;border:none;border-radius:15px;padding:clamp(13px,calc(var(--usable-h) * .02),16px) 10px;font-size:1.05rem;font-weight:800;letter-spacing:.3px;cursor:pointer;font-family:inherit;transition:transform .06s, box-shadow .06s, opacity .12s;}
   button.act:active{transform:translateY(3px);}
   button.act:disabled{opacity:.4;cursor:default;}
   .btn-new{color:var(--btn1-ink);background:var(--btn1);box-shadow:0 5px 0 var(--btn1-edge);}
@@ -115,7 +147,7 @@
   .btn-done{color:var(--btn2-ink);background:var(--btn2);box-shadow:0 5px 0 var(--btn2-edge);}
   .btn-done:active{box-shadow:0 2px 0 var(--btn2-edge);}
 
-  .timer{text-align:center;font-size:clamp(34px,12vw,50px);font-weight:800;letter-spacing:2px;color:var(--ink);}
+  .timer{text-align:center;font-size:clamp(30px,min(12vw,calc(var(--usable-h) * .055)),50px);line-height:1.15;font-weight:800;letter-spacing:2px;color:var(--ink);}
   .timer small{display:block;font-size:.72rem;font-weight:800;letter-spacing:.32em;color:var(--muted);margin-bottom:2px;}
   .timer.running{color:var(--accent);}
 
@@ -156,9 +188,7 @@
   .danger{width:100%;border:2px solid #e6b3aa;color:#c0392b;background:#fff;border-radius:14px;padding:14px;font-weight:800;font-size:.95rem;font-family:inherit;cursor:pointer;}
   .danger:active{background:#fdece9;}
 
-  /* Auf kurzen Displays nur die neue Rahmung (Kopf, Pillen, Seitenabstände) straffen,
-     damit möglichst viel vom Timer über der Falz bleibt. Würfel, Brett und Buttons
-     bleiben unangetastet. */
+  /* Auf kurzen Displays zuerst die Rahmung straffen (Kopf, Pillen, Abstände). */
   @media (max-height:880px){
     .app{padding-top:6px;}
     header{padding-top:0;}
@@ -193,14 +223,16 @@
   <div class="pages" id="pages">
 
     <!-- SEITE 1: SPIEL -->
-    <section class="page" role="tabpanel" aria-label="Spiel">
+    <section class="page game" role="tabpanel" aria-label="Spiel">
       <div class="dice">
         <div class="dice-row" id="diceTop"></div>
         <div class="dice-row" id="diceBottom"></div>
       </div>
 
-      <div class="board-wrap">
-        <div class="board" id="board"></div>
+      <div class="board-area">
+        <div class="board-wrap">
+          <div class="board" id="board"></div>
+        </div>
       </div>
 
       <div class="controls">

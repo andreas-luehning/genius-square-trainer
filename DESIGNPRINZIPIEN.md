@@ -89,6 +89,12 @@ vertikales Scrollen erreichbar sein:
 3. „Neue Kombination“ und „Fertig",
 4. die laufende Zeit.
 
+Knapp ist dabei die Höhe, nicht die Breite. Deshalb gilt: **Das Brett ist der
+nachgebende Block.** Es bekommt, was nach Würfeln und Steuerung übrig bleibt,
+und bleibt dabei immer quadratisch. Würfel, Buttons und Zeitanzeige haben feste
+Obergrenzen und schrumpfen nur mit der bespielbaren Höhe – gerechnet ohne die
+Safe-Area-Ränder, die auf dem Gerät rund 90px kosten.
+
 Die Historie ist sekundär. Sie darf auf eine eigene, horizontal erreichbare
 Ansicht ausgelagert werden. Die Themenwahl ist eine seltene Einstellung und
 eignet sich für ein kleines Zahnrad-Menü statt einer permanenten Hauptseite.
