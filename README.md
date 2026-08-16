@@ -1,22 +1,46 @@
 # Genius Square Trainer (Web-App / PWA)
 
-Würfel-Trainer für *Genius Square*: Kombination würfeln, Zeit stoppen, Historie
-der letzten 10 Spiele führen. Läuft komplett im Browser – ohne Server, ohne
-Installation nötig. Als PWA lässt sie sich auf Android „installieren" und
-funktioniert danach auch offline.
+Würfel-Trainer für *Genius Square*: Kombination würfeln, Zeit stoppen, Statistik
+führen. Läuft komplett im Browser – ohne Server, ohne Installation nötig. Als PWA
+lässt sie sich auf Android „installieren" und funktioniert danach auch offline.
+
+## Aufbau
+
+Drei Seiten, per Pillen-Menü **und** horizontalem Wischen erreichbar:
+
+1. **Spiel** – Würfel, Brett, Aktionen, Timer
+2. **Statistik** – Kennzahlen und die letzten Spiele
+3. **Einstellungen** – Farbprofil, Bildschirm-Wachhaltung, Daten löschen
 
 ## Funktionen
 
 - **7 echte Genius-Square-Würfel** (Original-Seiten) mit einem Klick werfen
 - **6×6-Brett**, das die Blocker-Positionen direkt anzeigt – das Plus gegenüber
   reinen Würfeln
-- **3 Farbthemen** (Aktuell, Koralle, Mint) per Umschalter oben; die Wahl wird
-  gespeichert
 - **Timer** (MM:SS.d), startet beim Würfeln, stoppt bei „Fertig"
-- **Historie** der letzten 10 Spiele mit Zeit + Kombination, **Bestzeit** wird
-  hervorgehoben
+- **Statistik**: Bestzeit, Durchschnitt, Gespielt (gesamt) und Heute; darunter die
+  letzten 10 Spiele mit Zeit + Kombination, **Bestzeit** hervorgehoben
+- **4 Farbprofile**: Standard, Koralle, Mint und **Original** – letzteres mit den
+  Farben der echten Spielkomponenten aus der offiziellen Anleitung
+  (`ressources/…Spielregeln.pdf`, Herleitung als Kommentar in `index.html`)
+- **Bildschirm immer an** über die Screen-Wake-Lock-API (braucht HTTPS; Browser
+  ohne Unterstützung zeigen den Schalter deaktiviert)
 - **Dauerhaftes Speichern** im Browser (übersteht Neustart) – über `localStorage`
 - **Offline-fähig** dank Service Worker
+
+## Gespeicherte Daten (`localStorage`)
+
+| Schlüssel | Inhalt |
+| --- | --- |
+| `gs-trainer-runs-v1` | die letzten 50 Läufe `{t, combo, ts}`, neueste zuerst |
+| `gs-trainer-stats-v1` | Gesamtwerte `{count, sumSeconds, bestSeconds}` – bleiben erhalten, auch wenn die Liste gekürzt wird |
+| `gs-trainer-theme` | gewähltes Farbprofil |
+| `gs-trainer-wakelock` | `1`/`0` für „Bildschirm immer an" |
+
+Eine ältere `gs-trainer-history-v1` wird beim ersten Start automatisch übernommen
+(ohne Zeitstempel, zählt daher nicht für „Heute") und danach entfernt.
+„Statistik löschen" auf der Einstellungsseite entfernt Läufe und Gesamtwerte,
+lässt Farbprofil und Wake-Lock-Schalter aber unberührt.
 
 ## Dateien
 
@@ -27,7 +51,9 @@ sw.js                   Service Worker (Offline-Cache)
 icons/                  App-Icons (192, 512, maskable)
 icon-512.png            Quelldatei für die App-Icons
 make_icons.py           erzeugt die Icons neu (optional, braucht Python + Pillow)
-paletten-mockup.html    Entwicklungsansicht der Farbthemen
+DESIGNPRINZIPIEN.md     Designleitlinien der App
+mockup/                 Layout- und Palettenentwürfe (nicht Teil der App)
+ressources/             offizielle Spielanleitung als PDF (Farbquelle „Original")
 ```
 
 ## Lokal testen

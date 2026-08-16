@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Genius Square – Navigations-Mockup</title>
+<style>
+:root{
+  --card:#fff;--ink:#33291b;--muted:#93866f;--hair:rgba(51,41,27,.10);--radius:20px;
+  --bg:#fbf4e4;--board:#69c3ef;--board-edge:#3f94c6;--label:#f0fbff;
+  --btn1:#8bbe3d;--btn1-ink:#fff;--btn1-edge:#6f9e2c;
+  --btn2:#f5a04e;--btn2-ink:#5a3410;--btn2-edge:#dd8127;
+  --accent:#eb5b44;--eyebrow:#f5a04e;--title-a:#eb5b44;--title-b:#4fa6d6;
+  --ivory-1:#fdf6df;--ivory-2:#f1e5c2;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:#d9d2c7;color:var(--ink);font-family:"Segoe UI Rounded","SF Pro Rounded",ui-rounded,system-ui,-apple-system,Roboto,sans-serif;display:flex;justify-content:center}
+button{font:inherit}.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+.app{width:100%;max-width:520px;height:100%;background:radial-gradient(130% 60% at 50% -8%,rgba(255,255,255,.35),var(--bg) 60%),var(--bg);display:grid;grid-template-rows:auto minmax(0,1fr) auto;box-shadow:0 0 35px rgba(51,41,27,.18)}
+
+/* Wortmarke der Produktionsversion, nur kompakter */
+.top{position:relative;text-align:center;padding:calc(8px + env(safe-area-inset-top)) 52px 7px}
+.eyebrow{font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;color:var(--eyebrow);font-weight:800;margin:0 0 1px}
+.top h1{margin:0;font-size:1.42rem;line-height:1.05;font-weight:800;letter-spacing:.3px}.a{color:var(--title-a)}.b{color:var(--title-b)}
+.mock{position:absolute;right:12px;top:calc(12px + env(safe-area-inset-top));font-size:.55rem;font-weight:800;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+
+/* Drei klar getrennte Ansichten */
+.viewport{min-height:0;overflow:hidden}.pages{height:100%;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}.pages::-webkit-scrollbar{display:none}
+.page{flex:0 0 100%;height:100%;scroll-snap-align:start;overflow-y:auto;padding:8px 14px 18px}
+.page-title{margin:3px 2px 13px;font-size:1.3rem;font-weight:800}.page-title small{display:block;margin-top:3px;color:var(--muted);font-size:.72rem;font-weight:600}
+
+/* Einstellungen */
+.settings{display:grid;gap:10px}.setting-card{background:var(--card);border-radius:var(--radius);padding:15px;box-shadow:0 6px 16px rgba(120,100,60,.14)}
+.setting-card h2{font-size:1rem;margin:0 0 5px}.setting-card p{font-size:.8rem;line-height:1.4;color:var(--muted);margin:0}
+.themes{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.chip{display:flex;align-items:center;gap:7px;padding:7px 11px 7px 8px;border-radius:999px;border:2px solid var(--hair);background:var(--card);color:var(--ink);font-weight:800;font-size:.75rem}.chip.active{border-color:var(--accent);color:var(--accent)}
+.dots{display:flex}.dots i{width:10px;height:10px;border-radius:50%;margin-left:-3px;box-shadow:0 0 0 1.5px var(--card)}.dots i:first-child{margin-left:0}
+.switch-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:.86rem;font-weight:700}.switch{width:45px;height:27px;padding:3px;border:0;border-radius:99px;background:var(--btn1);box-shadow:inset 0 2px 4px rgba(0,0,0,.18)}.switch::after{content:"";display:block;width:21px;height:21px;border-radius:50%;background:white;margin-left:auto;box-shadow:0 2px 4px rgba(0,0,0,.25)}
+
+/* Spiel: gleiche Material- und Formensprache wie Produktion */
+.game{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:10px;overflow:hidden}
+.dice{display:flex;flex-direction:column;gap:7px}.dice-row{display:flex;gap:7px;justify-content:center}
+.die{width:min(16.8vw,68px);aspect-ratio:1;border-radius:14px;background:linear-gradient(160deg,var(--ivory-1),var(--ivory-2));display:grid;place-items:center;font-weight:800;font-size:clamp(16px,5vw,23px);letter-spacing:.4px;box-shadow:0 4px 0 #e3d3a6,0 7px 10px rgba(120,95,40,.22),inset 0 2px 2px rgba(255,255,255,.8)}
+.board-wrap{min-height:0;border-radius:26px;padding:9px 11px 12px;background:var(--board);box-shadow:0 7px 0 var(--board-edge),0 12px 19px rgba(40,80,110,.25),inset 0 2px 2px rgba(255,255,255,.4);display:flex;flex-direction:column}
+.board-label{display:flex;justify-content:space-between;margin:0 3px 4px}.board-label span{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--label);font-weight:800}
+.board{width:min(100%,390px);max-height:100%;aspect-ratio:1;margin:auto;display:grid;grid-template-columns:14px repeat(6,1fr);grid-template-rows:14px repeat(6,1fr);gap:clamp(4px,1.2vw,7px)}
+.lbl{display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:800;color:var(--label)}
+.cell{aspect-ratio:1;border-radius:50%;background:rgba(0,0,0,.17);box-shadow:inset 0 4px 6px rgba(0,0,0,.32),inset 0 -1px 0 rgba(255,255,255,.18);position:relative}
+.cell.blocked::after{content:"";position:absolute;inset:7%;border-radius:50%;background:radial-gradient(circle at 38% 32%,rgba(255,255,255,.6),rgba(255,255,255,0) 46%),linear-gradient(118deg,rgba(150,98,48,0) 42%,rgba(150,98,48,.18) 50%,rgba(150,98,48,0) 58%),repeating-radial-gradient(circle at 45% 43%,#e0b57e 0 2.5px,#d0a469 2.5px 5px),radial-gradient(circle at 50% 50%,#ecc78d 0%,#d8a75c 58%,#b6823f 100%);box-shadow:0 3px 5px rgba(90,55,15,.5),inset 0 2px 1px rgba(255,246,224,.6),inset 0 -4px 6px rgba(120,80,35,.55)}
+.controls{min-width:0;background:var(--card);border-radius:var(--radius);padding:9px 10px 10px;display:grid;grid-template-columns:minmax(100px,.75fr) minmax(0,1.25fr);gap:9px;align-items:center;box-shadow:0 6px 16px rgba(120,100,60,.14)}
+.timer{text-align:center;font-size:clamp(24px,8vw,38px);font-weight:800;letter-spacing:1px}.timer small{display:block;font-size:.56rem;letter-spacing:.28em;color:var(--muted);margin-bottom:1px}.btn-row{display:flex;gap:8px;height:46px}.act{flex:1;border:0;border-radius:13px;padding:8px 5px;font-weight:800;font-size:.86rem}.btn-new{color:var(--btn1-ink);background:var(--btn1);box-shadow:0 4px 0 var(--btn1-edge)}.btn-done{color:var(--btn2-ink);background:var(--btn2);box-shadow:0 4px 0 var(--btn2-edge)}
+
+/* Statistik lehnt sich an die vorhandene Historienkarte an */
+.stats-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}.stat{background:var(--card);border-radius:var(--radius);padding:13px;box-shadow:0 6px 16px rgba(120,100,60,.14)}.stat span{font-size:.67rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.stat b{display:block;margin-top:4px;font-size:1.45rem}.stat.best b{color:var(--accent)}
+.history{background:var(--card);border-radius:var(--radius);padding:13px 13px 9px;box-shadow:0 6px 16px rgba(120,100,60,.14)}.history-head{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 9px}.history-head h2{margin:0;font-size:1rem}.history-head span{font-size:.76rem;color:var(--muted)}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px 3px;font-size:.79rem}th{color:var(--muted);border-bottom:2px solid var(--hair)}td{border-bottom:1px solid rgba(51,41,27,.06)}th:first-child,td:first-child{width:30px;color:var(--muted)}th:nth-child(2),td:nth-child(2){width:75px}.is-best td{color:var(--accent);font-weight:700}.combo{color:#6f6455;font-size:.72rem}.clear{display:block;margin:10px auto 1px;padding:6px 12px;border:2px solid var(--hair);border-radius:11px;background:none;color:var(--muted);font-weight:800;font-size:.73rem}
+
+/* Navigation: Zahnrad – Spiel – Statistik */
+.nav{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:6px 10px calc(6px + env(safe-area-inset-bottom));background:rgba(255,255,255,.88);border-top:1px solid var(--hair);backdrop-filter:blur(12px)}
+.nav-btn{border:0;border-radius:14px;background:transparent;color:var(--muted);padding:5px 3px 4px;font-size:.67rem;font-weight:800}.nav-btn svg{display:block;width:22px;height:22px;margin:0 auto 2px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.nav-btn.active{background:rgba(105,195,239,.16);color:var(--title-b)}
+
+@media(max-height:700px){.top{padding-top:calc(5px + env(safe-area-inset-top));padding-bottom:4px}.top h1{font-size:1.2rem}.eyebrow{font-size:.52rem}.page{padding-top:5px}.game{gap:7px}.dice{gap:5px}.die{width:min(14.5vw,57px);border-radius:12px}.board-wrap{padding:6px 9px 9px}.controls{padding:6px 8px 8px}.btn-row{height:40px}.timer{font-size:1.45rem}.nav{padding-top:4px;padding-bottom:calc(4px + env(safe-area-inset-bottom))}.nav-btn{padding:3px}.nav-btn svg{width:19px;height:19px}}
+@media(prefers-reduced-motion:reduce){.pages{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="top"><p class="eyebrow">Trainer</p><h1><span class="a">Genius</span> <span class="b">Square</span></h1><span class="mock">Mockup</span></header>
+  <div class="viewport"><div class="pages" id="pages">
+    <section class="page" aria-label="Einstellungen">
+      <h1 class="page-title">Einstellungen<small>Seltene Optionen, getrennt vom Spiel</small></h1>
+      <div class="settings">
+        <article class="setting-card"><h2>Farbthema</h2><p>Nur die Farben wechseln. Würfel, Holzblocker und Formen bleiben gleich.</p><div class="themes"><button class="chip active"><span class="dots"><i style="background:#69c3ef"></i><i style="background:#8bbe3d"></i><i style="background:#f5a04e"></i></span>Aktuell</button><button class="chip"><span class="dots"><i style="background:#9abae3"></i><i style="background:#ec644e"></i><i style="background:#cf388d"></i></span>Koralle</button><button class="chip"><span class="dots"><i style="background:#cce7e3"></i><i style="background:#aace7b"></i><i style="background:#fcf3b9"></i></span>Mint</button></div></article>
+        <article class="setting-card"><h2>Anzeige</h2><p>Optionen für eine ruhige Spielansicht.</p><div class="switch-row"><span>Animationen</span><button class="switch" aria-label="Animationen eingeschaltet"></button></div></article>
+        <article class="setting-card"><h2>Über dieses Mockup</h2><p>Die Navigation und Aufteilung sind interaktiv. Spiellogik und Einstellungen verändern noch keine Daten.</p></article>
+      </div>
+    </section>
+
+    <section class="page game" aria-label="Spiel">
+      <div class="dice" aria-label="Sieben Würfel"><div class="dice-row"><div class="die">A1</div><div class="die">C2</div><div class="die">D4</div></div><div class="dice-row"><div class="die">F2</div><div class="die">B5</div><div class="die">E4</div><div class="die">A6</div></div></div>
+      <div class="board-wrap"><div class="board-label"><span>Brett</span><span>Blocker</span></div><div class="board" id="board"></div></div>
+      <div class="controls"><div class="timer mono"><small>ZEIT</small>01:24.7</div><div class="btn-row"><button class="act btn-new">Neu würfeln</button><button class="act btn-done">Fertig</button></div></div>
+    </section>
+
+    <section class="page" aria-label="Statistik">
+      <h1 class="page-title">Statistik<small>Bestzeit und die letzten zehn Spiele</small></h1>
+      <div class="stats-summary"><div class="stat best"><span>Bestzeit</span><b class="mono">00:48.2</b></div><div class="stat"><span>Spiele</span><b>10</b></div></div>
+      <article class="history"><div class="history-head"><h2>Letzte 10 Spiele</h2><span>Ø 01:22.3</span></div><table><thead><tr><th>#</th><th>Zeit</th><th>Würfelkombination</th></tr></thead><tbody><tr><td>1</td><td class="mono">01:24.7</td><td class="combo mono">A1 C2 D4 F2 B5 E4 A6</td></tr><tr class="is-best"><td>★ 2</td><td class="mono">00:48.2</td><td class="combo mono">C1 B3 E3 B6 C6 F5 F1</td></tr><tr><td>3</td><td class="mono">02:03.9</td><td class="combo mono">D2 A3 C4 A5 D6 E6 A6</td></tr><tr><td>4</td><td class="mono">01:12.5</td><td class="combo mono">F3 B2 C3 F2 C5 E5 F1</td></tr></tbody></table><button class="clear">Historie löschen</button></article>
+    </section>
+  </div></div>
+
+  <nav class="nav" aria-label="Hauptnavigation">
+    <button class="nav-btn" data-page="0" aria-label="Einstellungen"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6 1.7 1.7 0 0 0 10 3v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1z"></path></svg>Einstellungen</button>
+    <button class="nav-btn active" data-page="1" aria-label="Spiel"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"></rect><circle cx="9" cy="9" r="1"></circle><circle cx="15" cy="15" r="1"></circle><circle cx="15" cy="9" r="1"></circle><circle cx="9" cy="15" r="1"></circle></svg>Spiel</button>
+    <button class="nav-btn" data-page="2" aria-label="Statistik"><svg viewBox="0 0 24 24"><path d="M4 20V10h4v10M10 20V4h4v16M16 20v-7h4v7M3 20h18"></path></svg>Statistik</button>
+  </nav>
+</main>
+<script>
+const cols=["A","B","C","D","E","F"],rows=[1,2,3,4,5,6],blocked=new Set(["A1","C2","D4","F2","B5","E4","A6"]),board=document.getElementById("board");
+function add(cls,text=""){const el=document.createElement("div");el.className=cls;el.textContent=text;board.appendChild(el)}
+add("lbl");cols.forEach(c=>add("lbl",c));rows.forEach(r=>{add("lbl",r);cols.forEach(c=>add("cell"+(blocked.has(c+r)?" blocked":""))) });
+const pages=document.getElementById("pages"),buttons=[...document.querySelectorAll(".nav-btn")];
+function activate(index){buttons.forEach((button,i)=>button.classList.toggle("active",i===index))}
+function go(index,behavior="smooth"){pages.scrollTo({left:index*pages.clientWidth,behavior});activate(index)}
+buttons.forEach(button=>button.addEventListener("click",()=>go(Number(button.dataset.page))));
+let settle;pages.addEventListener("scroll",()=>{clearTimeout(settle);settle=setTimeout(()=>activate(Math.round(pages.scrollLeft/pages.clientWidth)),70)},{passive:true});
+window.addEventListener("resize",()=>go(buttons.findIndex(button=>button.classList.contains("active")),"auto"));
+requestAnimationFrame(()=>go(1,"auto"));
+</script>
+</body>
+</html>

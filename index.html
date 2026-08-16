@@ -8,6 +8,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="icon" href="icons/icon-192.png" type="image/png">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="GS Trainer">
@@ -19,7 +20,7 @@
     --muted:#93866f;
     --hair:rgba(51,41,27,.10);
     --radius:20px;
-    /* Themenfarben (Standard = Aktuell; werden per JS gesetzt) */
+    /* Themenfarben (Standard; werden per JS gesetzt) */
     --bg:#fbf4e4;
     --board:#69c3ef; --board-edge:#3f94c6; --label:#f0fbff;
     --btn1:#8bbe3d; --btn1-ink:#ffffff; --btn1-edge:#6f9e2c;
@@ -32,36 +33,41 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;height:100%;}
   body{
+    height:100dvh;
     background:radial-gradient(130% 60% at 50% -8%, rgba(255,255,255,.35) 0%, var(--bg) 60%), var(--bg);
     color:var(--ink);
     font-family:"Segoe UI Rounded","SF Pro Rounded",ui-rounded,system-ui,-apple-system,Roboto,sans-serif;
     display:flex;justify-content:center;
-    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
     transition:background .25s;
   }
-  .app{width:100%;max-width:520px;padding:16px 16px calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;}
+  .app{width:100%;max-width:520px;height:100%;display:flex;flex-direction:column;padding:12px 0 0;}
   .mono{font-family:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Roboto Mono",monospace;}
 
   /* Kopf */
-  header{text-align:center;margin:2px 0 0;}
+  header{text-align:center;padding:4px 16px 0;}
   .eyebrow{font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--eyebrow);font-weight:800;margin:0 0 3px;}
-  h1{margin:0;font-size:1.85rem;font-weight:800;letter-spacing:.3px;}
+  h1{margin:0;font-size:1.6rem;font-weight:800;letter-spacing:.3px;}
   h1 .a{color:var(--title-a);} h1 .b{color:var(--title-b);}
 
-  /* Themen-Umschalter */
-  .themes{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
-  .chip{
-    display:flex;align-items:center;gap:8px;padding:7px 12px 7px 9px;border-radius:999px;
-    border:2px solid var(--hair);background:var(--card);color:var(--ink);
-    font-weight:800;font-size:.78rem;cursor:pointer;font-family:inherit;
-    transition:border-color .15s, transform .06s;
-  }
-  .chip:active{transform:translateY(1px);}
-  .chip.active{border-color:var(--accent);color:var(--accent);}
-  .chip .dots{display:flex;}
-  .chip .dots i{width:11px;height:11px;border-radius:50%;margin-left:-3px;box-shadow:0 0 0 1.5px var(--card);}
-  .chip .dots i:first-child{margin-left:0;}
+  /* Pillen-Menü */
+  .nav{position:relative;display:flex;margin:12px 16px 10px;background:var(--card);
+    border-radius:999px;padding:5px;box-shadow:0 4px 12px rgba(90,70,40,.14), inset 0 0 0 1px var(--hair);}
+  .nav .ind{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px)/3);
+    border-radius:999px;background:var(--accent);transition:transform .28s cubic-bezier(.4,1.2,.5,1);}
+  .seg{flex:1;z-index:1;border:none;background:none;font-family:inherit;font-weight:800;font-size:.86rem;
+    color:var(--muted);padding:10px 6px;cursor:pointer;transition:color .2s;}
+  .seg.active{color:#fff;}
 
+  /* Wisch-Seiten */
+  .pages{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
+    scrollbar-width:none;}
+  .pages::-webkit-scrollbar{display:none;}
+  .page{min-width:100%;scroll-snap-align:start;overflow-y:auto;
+    padding:6px 16px calc(24px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;gap:14px;}
+
+  /* ---------- SEITE 1: SPIEL ---------- */
   /* Würfel */
   .dice{display:flex;flex-direction:column;gap:9px;}
   .dice-row{display:flex;gap:9px;justify-content:center;}
@@ -80,8 +86,6 @@
     box-shadow:0 8px 0 var(--board-edge),0 14px 22px rgba(40,80,110,.28),inset 0 2px 2px rgba(255,255,255,.4);
     transition:background .25s, box-shadow .25s;
   }
-  .board-label{display:flex;justify-content:space-between;margin:0 4px 12px;}
-  .board-label span{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--label);font-weight:800;}
   .board{display:grid;grid-template-columns:16px repeat(6,1fr);grid-template-rows:16px repeat(6,1fr);gap:clamp(5px,1.7vw,9px);}
   .lbl{display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:var(--label);}
   .cell{
@@ -115,24 +119,61 @@
   .timer small{display:block;font-size:.72rem;font-weight:800;letter-spacing:.32em;color:var(--muted);margin-bottom:2px;}
   .timer.running{color:var(--accent);}
 
-  /* Historie */
-  .history{background:var(--card);border-radius:var(--radius);padding:14px 14px 10px;box-shadow:0 6px 16px rgba(120,100,60,.14);}
-  .history-head{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 12px;}
-  .history-head h2{margin:0;font-size:1.05rem;font-weight:800;}
-  .best{font-size:.82rem;color:var(--muted);} .best b{color:var(--accent);}
+  /* ---------- SEITE 2: STATISTIK ---------- */
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .stat{background:var(--card);border-radius:16px;padding:16px 14px;box-shadow:0 6px 16px rgba(120,100,60,.14);}
+  .stat .num{font-size:1.9rem;font-weight:800;letter-spacing:1px;color:var(--ink);}
+  .stat .num.accent{color:var(--accent);}
+  .stat .cap{font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+  .card{background:var(--card);border-radius:16px;padding:14px;box-shadow:0 6px 16px rgba(120,100,60,.14);}
+  .card h2{margin:0 0 10px;font-size:.95rem;font-weight:800;}
   table{width:100%;border-collapse:collapse;}
-  th,td{padding:8px 4px;text-align:left;font-size:.86rem;}
+  th,td{padding:7px 4px;text-align:left;font-size:.84rem;}
   th{color:var(--muted);font-weight:800;border-bottom:2px solid var(--hair);}
-  td:first-child,th:first-child{width:34px;color:var(--muted);white-space:nowrap;}
-  td:nth-child(2),th:nth-child(2){width:80px;}
+  td:first-child,th:first-child{width:30px;color:var(--muted);}
+  td:nth-child(2),th:nth-child(2){width:78px;}
   tr td{border-bottom:1px solid rgba(51,41,27,.06);}
   tr.is-best td{color:var(--accent);font-weight:700;}
   tr.is-best td:first-child::before{content:"★";font-size:.62em;margin-right:2px;vertical-align:1px;}
   .combo{color:#6f6455;word-spacing:2px;} .empty{color:#c9bda6;}
-  .clear{background:none;border:2px solid var(--hair);color:var(--muted);font-size:.78rem;font-weight:800;padding:7px 14px;border-radius:12px;flex:0 0 auto;width:auto;margin:8px auto 2px;display:block;font-family:inherit;}
-  .clear:active{background:rgba(51,41,27,.04);transform:translateY(1px);}
 
-  @media (prefers-reduced-motion:reduce){.die.rolling,.cell.blocked::after{animation:none;}button.act:active{transform:none;}body,.board-wrap{transition:none;}}
+  /* ---------- SEITE 3: EINSTELLUNGEN ---------- */
+  .set-title{font-size:.75rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:4px 4px 0;}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{display:flex;align-items:center;gap:8px;padding:9px 13px 9px 10px;border-radius:999px;border:2px solid var(--hair);
+    background:var(--card);color:var(--ink);font-weight:800;font-size:.82rem;cursor:pointer;font-family:inherit;
+    transition:border-color .15s, transform .06s;}
+  .chip:active{transform:translateY(1px);}
+  .chip.active{border-color:var(--accent);color:var(--accent);}
+  .chip .dots{display:flex;} .chip .dots i{width:12px;height:12px;border-radius:50%;margin-left:-3px;box-shadow:0 0 0 1.5px var(--card);}
+  .chip .dots i:first-child{margin-left:0;}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;background:var(--card);border-radius:16px;box-shadow:0 6px 16px rgba(120,100,60,.14);}
+  .row .txt b{display:block;font-size:.95rem;} .row .txt span{font-size:.78rem;color:var(--muted);}
+  .toggle{width:52px;height:30px;border-radius:999px;background:#d7ccb6;position:relative;border:none;cursor:pointer;transition:background .2s;flex:0 0 auto;}
+  .toggle::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s;}
+  .toggle.on{background:var(--accent);} .toggle.on::after{transform:translateX(22px);}
+  .toggle:disabled{opacity:.4;cursor:default;}
+  .danger{width:100%;border:2px solid #e6b3aa;color:#c0392b;background:#fff;border-radius:14px;padding:14px;font-weight:800;font-size:.95rem;font-family:inherit;cursor:pointer;}
+  .danger:active{background:#fdece9;}
+
+  /* Auf kurzen Displays nur die neue Rahmung (Kopf, Pillen, Seitenabstände) straffen,
+     damit möglichst viel vom Timer über der Falz bleibt. Würfel, Brett und Buttons
+     bleiben unangetastet. */
+  @media (max-height:880px){
+    .app{padding-top:6px;}
+    header{padding-top:0;}
+    .eyebrow{font-size:.66rem;margin-bottom:1px;}
+    h1{font-size:1.45rem;}
+    .nav{margin:8px 16px 6px;}
+    .seg{padding:8px 6px;}
+    .page{padding-top:2px;padding-bottom:calc(12px + env(safe-area-inset-bottom));gap:11px;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .die.rolling,.cell.blocked::after{animation:none;}
+    button.act:active{transform:none;}
+    body,.board-wrap,.nav .ind{transition:none;}
+  }
 </style>
 </head>
 <body>
@@ -142,36 +183,67 @@
     <h1><span class="a">Genius</span> <span class="b">Square</span></h1>
   </header>
 
-  <div class="themes" id="themes"></div>
-
-  <div class="dice">
-    <div class="dice-row" id="diceTop"></div>
-    <div class="dice-row" id="diceBottom"></div>
+  <div class="nav" role="tablist" aria-label="Seiten">
+    <div class="ind" id="ind"></div>
+    <button class="seg active" data-i="0" role="tab" aria-selected="true">Spiel</button>
+    <button class="seg" data-i="1" role="tab" aria-selected="false">Statistik</button>
+    <button class="seg" data-i="2" role="tab" aria-selected="false">Einstellungen</button>
   </div>
 
-  <div class="board-wrap">
-    <div class="board-label"><span>Brett</span><span>Blocker</span></div>
-    <div class="board" id="board"></div>
-  </div>
+  <div class="pages" id="pages">
 
-  <div class="controls">
-    <div class="btn-row">
-      <button class="act btn-new" id="btnNew">Neue Kombination</button>
-      <button class="act btn-done" id="btnDone" disabled>Fertig</button>
-    </div>
-    <div class="timer mono" id="timer"><small>ZEIT</small>00:00.0</div>
-  </div>
+    <!-- SEITE 1: SPIEL -->
+    <section class="page" role="tabpanel" aria-label="Spiel">
+      <div class="dice">
+        <div class="dice-row" id="diceTop"></div>
+        <div class="dice-row" id="diceBottom"></div>
+      </div>
 
-  <div class="history">
-    <div class="history-head">
-      <h2>Letzte 10 Spiele</h2>
-      <div class="best" id="best">Best: <b>—</b></div>
-    </div>
-    <table>
-      <thead><tr><th>#</th><th>Zeit</th><th>Würfelkombination</th></tr></thead>
-      <tbody id="historyBody"></tbody>
-    </table>
-    <button class="clear" id="btnClear">Historie löschen</button>
+      <div class="board-wrap">
+        <div class="board" id="board"></div>
+      </div>
+
+      <div class="controls">
+        <div class="btn-row">
+          <button class="act btn-new" id="btnNew">Neue Kombination</button>
+          <button class="act btn-done" id="btnDone" disabled>Fertig</button>
+        </div>
+        <div class="timer mono" id="timer"><small>ZEIT</small>00:00.0</div>
+      </div>
+    </section>
+
+    <!-- SEITE 2: STATISTIK -->
+    <section class="page" role="tabpanel" aria-label="Statistik">
+      <div class="stat-grid">
+        <div class="stat"><div class="num accent mono" id="statBest">—</div><div class="cap">Bestzeit</div></div>
+        <div class="stat"><div class="num mono" id="statAvg">—</div><div class="cap">Durchschnitt</div></div>
+        <div class="stat"><div class="num mono" id="statCount">—</div><div class="cap">Gespielt</div></div>
+        <div class="stat"><div class="num mono" id="statToday">—</div><div class="cap">Heute</div></div>
+      </div>
+      <div class="card">
+        <h2>Letzte Spiele</h2>
+        <table>
+          <thead><tr><th>#</th><th>Zeit</th><th>Würfelkombination</th></tr></thead>
+          <tbody id="runsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SEITE 3: EINSTELLUNGEN -->
+    <section class="page" role="tabpanel" aria-label="Einstellungen">
+      <p class="set-title">Farbprofil</p>
+      <div class="chips" id="chips"></div>
+
+      <p class="set-title">Anzeige</p>
+      <div class="row">
+        <div class="txt"><b>Bildschirm immer an</b><span id="wakeHint">Verhindert das Abdunkeln beim Spielen</span></div>
+        <button class="toggle" id="tglWake" aria-label="Bildschirm immer an" aria-pressed="false"></button>
+      </div>
+
+      <p class="set-title">Daten</p>
+      <button class="danger" id="btnWipe" aria-label="Statistik löschen">Statistik löschen</button>
+    </section>
+
   </div>
 </div>
 
@@ -189,13 +261,19 @@ const DICE_SETS = [
 ];
 const COLS = ["A","B","C","D","E","F"];
 const ROWS = [1,2,3,4,5,6];
-const STORAGE_KEY = "gs-trainer-history-v1";
-const THEME_KEY = "gs-trainer-theme";
 
-/* ---- Themen (aus dem Buch) ---- */
+const RUNS_KEY    = "gs-trainer-runs-v1";     // Liste der letzten Läufe {t,combo,ts}
+const STATS_KEY   = "gs-trainer-stats-v1";    // All-Time-Aggregat {count,sumSeconds,bestSeconds}
+const LEGACY_KEY  = "gs-trainer-history-v1";  // alte Historie (nur noch Migrationsquelle)
+const THEME_KEY   = "gs-trainer-theme";
+const WAKE_KEY    = "gs-trainer-wakelock";
+const MAX_RUNS    = 50;   // gespeicherte Läufe
+const TABLE_ROWS  = 10;   // in der Tabelle gezeigte Läufe
+
+/* ---- Themen ---- */
 const THEMES = {
-  aktuell:{
-    label:"Aktuell", dots:["#69c3ef","#8bbe3d","#f5a04e","#eb5b44"],
+  standard:{
+    label:"Standard", dots:["#69c3ef","#8bbe3d","#f5a04e","#eb5b44"],
     vars:{bg:"#fbf4e4",board:"#69c3ef","board-edge":"#3f94c6",label:"#f0fbff",
       btn1:"#8bbe3d","btn1-ink":"#ffffff","btn1-edge":"#6f9e2c",
       btn2:"#f5a04e","btn2-ink":"#5a3410","btn2-edge":"#dd8127",
@@ -214,41 +292,169 @@ const THEMES = {
       btn1:"#aace7b","btn1-ink":"#233b12","btn1-edge":"#8bb257",
       btn2:"#fcf3b9","btn2-ink":"#5a5a1c","btn2-edge":"#ddd28f",
       accent:"#7aa63f",eyebrow:"#7aa63f","title-a":"#6f9e2c","title-b":"#c9a227"}
+  },
+  /* Farben der echten Spielkomponenten, entnommen aus der offiziellen Anleitung
+     ressources/SmartGames_Genius_Square_SGHP_001_Spielregeln.pdf, Seite 4
+     (flache Vektorabbildung von Spielbrett, Blockern und den 9 Formen).
+     Zuordnung Komponente -> Variable:
+       Spielbrett dunkelblau  #1e2c54 -> board
+         board-edge #111a33 = gleiche Farbe abgedunkelt (die Kante ist eine Zugabe der App)
+       weiße Brettbeschriftung #ffffff -> label
+       Blocker/Naturholz      #f2cc77 -> stark aufgehellt zu bg #fdf7ea
+                                         (die Anleitung selbst hat weißen Grund; weiß würde die
+                                          weißen Karten verschlucken, daher der Holzton als Wäsche)
+       grüne Form             #42b23c -> btn1   (edge #2f8a2a abgedunkelt)
+         btn1-ink #123a10: Weiß auf #42b23c erreicht nur 2,8:1, dunkles Grün 5,4:1
+       orange Form            #f68712 -> btn2   (edge #cf6d09 abgedunkelt)
+         btn2-ink #4a2408 = braune Form #914d1f abgedunkelt, 5,3:1 auf Orange
+       rote Form              #de183d -> accent
+       violette Form          #95178f -> eyebrow
+       dunkelblaue Form       #2a3e92 -> title-a  (auch das Blau der Wortmarke)
+       orange Form            #f68712 -> title-b  (Logo-Schriftzug „SQUARE")
+     Holzdübel und Elfenbein-Würfel bleiben unverändert – die echten Blocker sind Holz. */
+  original:{
+    label:"Original", dots:["#1e2c54","#de183d","#42b23c","#f68712"],
+    vars:{bg:"#fdf7ea",board:"#1e2c54","board-edge":"#111a33",label:"#ffffff",
+      btn1:"#42b23c","btn1-ink":"#123a10","btn1-edge":"#2f8a2a",
+      btn2:"#f68712","btn2-ink":"#4a2408","btn2-edge":"#cf6d09",
+      accent:"#de183d",eyebrow:"#95178f","title-a":"#2a3e92","title-b":"#f68712"}
   }
 };
+const DEFAULT_THEME = "standard";
 
 function applyTheme(key){
-  const t = THEMES[key] || THEMES.aktuell;
+  const t = THEMES[key] || THEMES[DEFAULT_THEME];
   const root = document.documentElement.style;
   for(const [k,v] of Object.entries(t.vars)) root.setProperty("--"+k, v);
   document.getElementById("metaTheme").setAttribute("content", t.vars.bg);
-  document.querySelectorAll(".chip").forEach(c=>c.classList.toggle("active", c.dataset.key===key));
+  document.querySelectorAll(".chip").forEach(c=>{
+    const on = c.dataset.key===key;
+    c.classList.toggle("active", on);
+    c.setAttribute("aria-pressed", on?"true":"false");
+  });
   try{ localStorage.setItem(THEME_KEY, key); }catch(e){}
 }
 
-/* Chips bauen */
-const themesEl = document.getElementById("themes");
+/* Chips (Einstellungen) */
+const chipsEl = document.getElementById("chips");
 Object.entries(THEMES).forEach(([key,t])=>{
   const chip = document.createElement("button");
   chip.className = "chip"; chip.dataset.key = key;
+  chip.setAttribute("aria-label","Farbprofil "+t.label);
   chip.innerHTML = '<span class="dots">'+t.dots.map(c=>`<i style="background:${c}"></i>`).join("")+'</span>'+t.label;
   chip.addEventListener("click", ()=>applyTheme(key));
-  themesEl.appendChild(chip);
+  chipsEl.appendChild(chip);
 });
 
-/* ---- Persistenz Historie ---- */
-let history = [];
-function loadHistory(){ try{ const r=localStorage.getItem(STORAGE_KEY); if(r) history=JSON.parse(r);}catch(e){} }
-function saveHistory(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); }catch(e){} }
+/* ---- Pillen-Menü + Wischen ---- */
+const pagesEl = document.getElementById("pages"), indEl = document.getElementById("ind");
+const segs = [...document.querySelectorAll(".seg")];
+let pageIndex = 0;
+function setActive(i){
+  pageIndex = i;
+  indEl.style.transform = "translateX("+(i*100)+"%)";
+  segs.forEach((s,k)=>{ const on = k===i; s.classList.toggle("active",on); s.setAttribute("aria-selected", on?"true":"false"); });
+}
+segs.forEach(s=>s.addEventListener("click", ()=>{
+  const i = +s.dataset.i;
+  pagesEl.scrollTo({left:i*pagesEl.clientWidth, behavior:"smooth"});
+  setActive(i);
+}));
+let scrollTimer;
+pagesEl.addEventListener("scroll", ()=>{
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(()=>{ setActive(Math.round(pagesEl.scrollLeft/pagesEl.clientWidth)); }, 60);
+});
+/* Nach Drehen/Größenänderung nicht zwischen zwei Seiten stehenbleiben */
+window.addEventListener("resize", ()=>{ pagesEl.scrollLeft = pageIndex*pagesEl.clientWidth; });
+
+/* ---- Persistenz: Läufe + All-Time-Aggregat ---- */
+let runs = [];                                    // [{t, combo, ts}], neueste zuerst
+let stats = {count:0, sumSeconds:0, bestSeconds:null};
+
+function loadData(){
+  let raw = null;
+  try{ raw = localStorage.getItem(RUNS_KEY); }catch(e){}
+  if(raw){
+    try{ runs = JSON.parse(raw) || []; }catch(e){ runs = []; }
+    try{ const s = JSON.parse(localStorage.getItem(STATS_KEY)||"null"); if(s) stats = s; }catch(e){}
+    return;
+  }
+  /* Migration der alten Historie: ohne Zeitstempel, daher ts:0 (zählt nie für „Heute"). */
+  try{
+    const old = JSON.parse(localStorage.getItem(LEGACY_KEY)||"null");
+    if(Array.isArray(old) && old.length){
+      runs = old.map(h=>({t:h.t, combo:h.combo||"", ts:0}));
+      stats = {
+        count: runs.length,
+        sumSeconds: runs.reduce((a,r)=>a+r.t, 0),
+        bestSeconds: Math.min(...runs.map(r=>r.t))
+      };
+      saveData();
+      localStorage.removeItem(LEGACY_KEY);
+    }
+  }catch(e){}
+}
+function saveData(){
+  try{
+    localStorage.setItem(RUNS_KEY, JSON.stringify(runs));
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  }catch(e){}
+}
+function addRun(seconds, combo){
+  runs.unshift({t:seconds, combo:combo, ts:Date.now()});
+  runs = runs.slice(0, MAX_RUNS);
+  /* Aggregat getrennt führen, damit es das Kürzen der Liste überlebt */
+  stats.count += 1;
+  stats.sumSeconds += seconds;
+  if(stats.bestSeconds === null || seconds < stats.bestSeconds) stats.bestSeconds = seconds;
+  saveData();
+}
+function wipeData(){
+  runs = []; stats = {count:0, sumSeconds:0, bestSeconds:null};
+  try{ localStorage.removeItem(RUNS_KEY); localStorage.removeItem(STATS_KEY); localStorage.removeItem(LEGACY_KEY); }catch(e){}
+}
 if(navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(()=>{}); }
 
 function formatTime(s){ if(s<0)s=0; const m=Math.floor(s/60),se=Math.floor(s%60),t=Math.floor((s*10)%10);
   return String(m).padStart(2,"0")+":"+String(se).padStart(2,"0")+"."+t; }
 
+/* ---- Statistik-Seite ---- */
+const statBest=document.getElementById("statBest"), statAvg=document.getElementById("statAvg");
+const statCount=document.getElementById("statCount"), statToday=document.getElementById("statToday");
+const runsBody=document.getElementById("runsBody");
+
+function countToday(){
+  const d = new Date(); d.setHours(0,0,0,0);
+  const start = d.getTime();
+  return runs.filter(r=>r.ts >= start).length;   // ts:0 (migriert) fällt heraus
+}
+function renderStats(){
+  const has = stats.count > 0;
+  statBest.textContent  = stats.bestSeconds===null ? "—" : formatTime(stats.bestSeconds);
+  statAvg.textContent   = has ? formatTime(stats.sumSeconds/stats.count) : "—";
+  statCount.textContent = has ? String(stats.count) : "—";
+  statToday.textContent = has ? String(countToday()) : "—";
+
+  runsBody.innerHTML = "";
+  if(!runs.length){
+    const tr = document.createElement("tr");
+    tr.innerHTML = '<td>1</td><td class="empty">—</td><td class="empty">Noch keine Spiele</td>';
+    runsBody.appendChild(tr);
+    return;
+  }
+  runs.slice(0, TABLE_ROWS).forEach((r,i)=>{
+    const tr = document.createElement("tr");
+    if(stats.bestSeconds!==null && r.t===stats.bestSeconds) tr.className = "is-best";
+    tr.innerHTML = "<td>"+(i+1)+'</td><td class="mono">'+formatTime(r.t)+'</td><td class="combo mono">'+r.combo+"</td>";
+    runsBody.appendChild(tr);
+  });
+}
+
+/* ---- Spiel ---- */
 const diceTop=document.getElementById("diceTop"), diceBottom=document.getElementById("diceBottom");
 const boardEl=document.getElementById("board"), timerEl=document.getElementById("timer");
 const btnNew=document.getElementById("btnNew"), btnDone=document.getElementById("btnDone");
-const btnClear=document.getElementById("btnClear"), historyBody=document.getElementById("historyBody"), bestEl=document.getElementById("best");
 
 const dieEls = DICE_SETS.map((_,i)=>{ const d=document.createElement("div"); d.className="die"; d.textContent="—"; (i<3?diceTop:diceBottom).appendChild(d); return d; });
 
@@ -268,20 +474,68 @@ function startTimer(){ running=true; startTime=performance.now(); timerEl.classL
 function stopTimer(){ if(!running)return 0; running=false; cancelAnimationFrame(rafId); timerEl.classList.remove("running"); const e=(performance.now()-startTime)/1000; timerEl.innerHTML='<small>ZEIT</small>'+formatTime(e); return e; }
 
 function newGame(){ rollAll(); startTimer(); btnDone.disabled=false; btnNew.textContent="Neu würfeln"; }
-function finishGame(){ const e=stopTimer(); if(e<=0)return; history.unshift({t:e,combo:currentCombo()}); history=history.slice(0,10); saveHistory(); renderHistory(); btnDone.disabled=true; btnNew.textContent="Neue Kombination"; }
-function bestTime(){ return history.length?Math.min(...history.map(h=>h.t)):null; }
-function renderHistory(){ const best=bestTime(); bestEl.innerHTML="Best: <b>"+(best===null?"—":formatTime(best))+"</b>"; historyBody.innerHTML="";
-  for(let i=0;i<10;i++){ const tr=document.createElement("tr"); const h=history[i]; if(h&&best!==null&&h.t===best)tr.className="is-best";
-    const num="<td>"+(i+1)+"</td>"; tr.innerHTML=h?num+'<td class="mono">'+formatTime(h.t)+'</td><td class="combo mono">'+h.combo+'</td>':num+'<td class="empty">—</td><td class="empty">—</td>'; historyBody.appendChild(tr); } }
+function finishGame(){ const e=stopTimer(); if(e<=0)return; addRun(e, currentCombo()); renderStats(); btnDone.disabled=true; btnNew.textContent="Neue Kombination"; }
 
 btnNew.addEventListener("click", newGame);
 btnDone.addEventListener("click", finishGame);
-btnClear.addEventListener("click", ()=>{ history=[]; saveHistory(); renderHistory(); });
 
-/* Start */
-let savedTheme="aktuell"; try{ savedTheme=localStorage.getItem(THEME_KEY)||"aktuell"; }catch(e){}
-applyTheme(THEMES[savedTheme]?savedTheme:"aktuell");
-loadHistory(); renderHistory(); rollAll();
+/* ---- Bildschirm immer an (Screen Wake Lock) ---- */
+const tglWake=document.getElementById("tglWake"), wakeHint=document.getElementById("wakeHint");
+const wakeSupported = "wakeLock" in navigator;
+let wakeLock=null, wakeWanted=false;
+
+async function acquireWake(){
+  if(!wakeSupported || !wakeWanted || wakeLock) return;
+  try{
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release", ()=>{ wakeLock=null; });
+  }catch(e){ wakeLock=null; }   // z.B. Akkusparmodus oder Seite nicht sichtbar
+}
+function releaseWake(){
+  if(!wakeLock) return;
+  const l = wakeLock; wakeLock = null;
+  try{ l.release(); }catch(e){}
+}
+function setWakeUI(on){
+  tglWake.classList.toggle("on", on);
+  tglWake.setAttribute("aria-pressed", on?"true":"false");
+}
+if(!wakeSupported){
+  tglWake.disabled = true;
+  wakeHint.textContent = "Von diesem Browser nicht unterstützt";
+}else{
+  try{ wakeWanted = localStorage.getItem(WAKE_KEY)==="1"; }catch(e){}
+  setWakeUI(wakeWanted);
+  /* Erste Anforderung bewusst hier im Klick-Handler (User-Geste). */
+  tglWake.addEventListener("click", ()=>{
+    wakeWanted = !wakeWanted;
+    setWakeUI(wakeWanted);
+    try{ localStorage.setItem(WAKE_KEY, wakeWanted?"1":"0"); }catch(e){}
+    if(wakeWanted) acquireWake(); else releaseWake();
+  });
+  /* Der Lock wird beim Tab-Wechsel/Sperren automatisch freigegeben -> neu anfordern. */
+  document.addEventListener("visibilitychange", ()=>{
+    if(document.visibilityState==="visible" && wakeWanted) acquireWake();
+  });
+}
+
+/* ---- Statistik löschen ---- */
+document.getElementById("btnWipe").addEventListener("click", ()=>{
+  if(!confirm("Alle Spieldaten löschen? Bestzeit, Durchschnitt und die Liste der letzten Spiele gehen verloren.")) return;
+  wipeData(); renderStats();
+});
+
+/* ---- Start ---- */
+let savedTheme = DEFAULT_THEME;
+try{ savedTheme = localStorage.getItem(THEME_KEY) || DEFAULT_THEME; }catch(e){}
+if(savedTheme === "aktuell") savedTheme = "standard";     // Abwärtskompatibilität
+applyTheme(THEMES[savedTheme] ? savedTheme : DEFAULT_THEME);
+loadData(); renderStats(); rollAll();
+
+/* Start immer auf „Spiel" – auch wenn der Browser die Scrollposition wiederherstellt. */
+function toGamePage(){ pagesEl.scrollLeft = 0; setActive(0); }
+toGamePage();
+window.addEventListener("load", toGamePage);
 
 if("serviceWorker" in navigator){ window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
 </script>

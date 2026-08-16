@@ -1,5 +1,5 @@
 // Version bei jedem inhaltlichen Update erhöhen -> alter Cache wird ersetzt.
-const CACHE = "gs-trainer-v5";
+const CACHE = "gs-trainer-v6";
 const ASSETS = [
   "./",
   "./index.html",

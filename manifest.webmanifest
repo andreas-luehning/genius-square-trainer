@@ -1,7 +1,7 @@
 {
   "name": "Genius Square Trainer",
   "short_name": "GS Trainer",
-  "description": "Würfel-Trainer für Genius Square: Kombination würfeln, Zeit stoppen, Historie führen.",
+  "description": "Würfel-Trainer für Genius Square: Kombination würfeln, Zeit stoppen, Statistik führen.",
   "lang": "de",
   "start_url": "./",
   "scope": "./",
