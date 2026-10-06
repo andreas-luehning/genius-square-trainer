@@ -26,6 +26,7 @@ manifest.webmanifest    PWA-Manifest (Name, Icons, Farben)
 sw.js                   Service Worker (Offline-Cache)
 icons/                  App-Icons (192, 512, maskable)
 make_icons.py           erzeugt die Icons neu (optional, braucht Python + Pillow)
+paletten-mockup.html    Entwicklungsansicht zum Vergleichen der Farbpaletten
 ```
 
 ## Lokal testen
@@ -41,26 +42,22 @@ python3 -m http.server 8000
 
 ## Über GitHub Pages hosten
 
-1. Auf GitHub ein neues Repository anlegen, z. B. `genius-square-trainer`.
-2. Diese Dateien hochladen (per Website „Add file → Upload files" oder per Git):
+1. Diese Dateien in das bestehende Repository committen und hochladen:
 
    ```bash
    cd genius-square-trainer
-   git init
    git add .
    git commit -m "Genius Square Trainer als Web-App/PWA"
-   git branch -M main
-   git remote add origin https://github.com/DEIN-NAME/genius-square-trainer.git
    git push -u origin main
    ```
 
-3. Im Repository: **Settings → Pages**.
-4. Unter *Build and deployment* bei *Source* **„Deploy from a branch"** wählen,
+2. Im Repository: **Settings → Pages**.
+3. Unter *Build and deployment* bei *Source* **„Deploy from a branch"** wählen,
    Branch **`main`**, Ordner **`/ (root)`**, dann **Save**.
-5. Nach ein bis zwei Minuten ist die App erreichbar unter:
+4. Nach ein bis zwei Minuten ist die App erreichbar unter:
 
    ```
-   https://DEIN-NAME.github.io/genius-square-trainer/
+   https://andreas-luehning.github.io/genius-square-trainer/
    ```
 
 > Wichtig: Alle Pfade in der App sind **relativ** (`sw.js`, `manifest.webmanifest`,
@@ -84,6 +81,10 @@ PWAs die neue Version, statt die alte aus dem Cache zu zeigen.
 ## Icons neu erzeugen (optional)
 
 ```bash
-pip install pillow
+python3 -m pip install pillow
 python3 make_icons.py
 ```
+
+Das Skript erzeugt alle Dateien unter `icons/`. Die normale Variante greift das
+Standardtheme der App auf; die maskierbare Variante hält das Motiv in der von
+Android benötigten Sicherheitszone.
